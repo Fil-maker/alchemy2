@@ -18,16 +18,22 @@
 <header>
     <nav class="navbar navbar-light bg-light">
         {% if current_user.is_authenticated %}
-        <a class="navbar-brand" href="/logout">{{ current_user.name }}</a>
-        <a class="navbar-brand" href="/job_add">Создать проект</a>
+        <h1>Миссия колонизация Марса</h1>
+        <a class="btn" href="/logout">{{current_user.name}} {{current_user.surname}}</a>
+        <a class="btn" href="/job_add">Mars one</a>
         {% else %}
+        <h1>Миссия колонизация Марса</h1>
         <p>
             <a class="btn btn-primary " href="/register">Зарегистрироваться</a>
             <a class="btn btn-success" href="/login">Войти</a>
         </p>
+        <a>Mars one</a>
         {% endif %}
     </nav>
 </header>
+<h4 class="motto">
+    И на Марсе будут яблони цвести!
+</h4>
 <!-- Begin page content -->
 <main role="main" class="container">
     {% block content %}{% endblock %}

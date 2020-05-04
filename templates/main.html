@@ -1,12 +1,28 @@
 {% extends "base.html" %}
-
 {% block content %}
-<div class="job-panel">
-    {%for job in works%}
-    <button class="work-container">
-        <p>Название: {{job.job}}</p>
-        <p>Длительность: {{job.work_size}}</p>
-    </button>
+<div>
+    <h3 id="work_h">Журнал работ</h3>
+    {% for num in range(count)%}
+    <div class="job">
+        <h4>Работа #{{num + 1}}</h4>
+        <table class="data_table">
+            <tr>
+                <th class="table_header">Название работы</th>
+                <th class="table_header">Имя ответственного</th>
+                <th class="table_header">Размер</th>
+                <th class="table_header">Команда</th>
+                <th class="table_header">завершена</th>
+            </tr>
+            <tr>
+                <td class="table_content">{{name[num]}}</td>
+                <td class="table_content">{{team_leader[num]}}</td>
+                <td class="table_content">{{duration[num]}}</td>
+                <td class="table_content">{{team_id[num]}}</td>
+                <td class="table_content" , id="is_finished">{{finished[num]}}</td>
+            </tr>
+        </table>
+        <a class="navbar-brand" href="/job/{{name[num]}}">Go</a>
+    </div>
+    {%endfor%}
 </div>
-{%endfor%}
-{% endblock %}
+{%endblock%}

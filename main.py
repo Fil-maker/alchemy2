@@ -1,4 +1,4 @@
-from flask import Flask, render_template,url_for
+from flask import Flask, render_template, url_for
 from flask_login import LoginManager, login_user, login_required, logout_user
 from werkzeug.utils import redirect
 from wtforms import PasswordField, BooleanField, SubmitField, StringField
@@ -26,7 +26,8 @@ def load_user(user_id):
 
 class RegisterForm(FlaskForm):
     email = EmailField('Почта', validators=[DataRequired()])
-    name = StringField('Имя пользователя', validators=[DataRequired()])
+    name = StringField('Имя', validators=[DataRequired()])
+    surname = StringField('Фамилия', validators=[DataRequired()])
     password = PasswordField('Пароль', validators=[DataRequired()])
     password_again = PasswordField('Повторите пароль', validators=[DataRequired()])
     submit = SubmitField('Создать')
@@ -72,6 +73,7 @@ def reqister():
         user = User(
             name=form.name.data,
             email=form.email.data,
+            surname=form.surname.data
         )
         user.set_password(form.password.data)
         session.add(user)
@@ -99,7 +101,22 @@ def login():
 @app.route('/')
 def start():
     session = db_session.create_session()
-    return render_template('main.html', works=session.query(Jobs).all(), style=url_for('static',filename='css/style.css'))
+    name, team_leader, duration, team_id, finished = [], [], [], [], []
+    for job in session.query(Jobs).all():
+        leader = session.query(User).filter(User.email == job.team_leader).first()
+        collaborators = job.collaborators.split()
+        team_col = []
+        for col in collaborators:
+            collaborator = session.query(User).filter(User.email == col).first().name
+            team_col.append(collaborator)
+
+        name.append(job.job)
+        team_leader.append(leader.name + ' ' + leader.surname)
+        duration.append(job.work_size)
+        team_id.append(', '.join(team_col))
+        finished.append(job.is_finished)
+    return render_template('main.html', count=len(name), style=url_for('static', filename='css/style.css'), name=name,
+                           team_leader=team_leader, duration=duration, team_id=team_id, finished=finished)
 
 
 @app.route('/job_add', methods=['GET', 'POST'])
@@ -110,12 +127,17 @@ def job_add():
         if session.query(Jobs).filter(Jobs.job == form.job.data).first():
             return render_template('job.html', title='Создание проекта', form=form,
                                    message='Проект с таким названием уже существует')
+        lead = session.query(User).filter(User.email == form.team_leader.data).first()
         if session.query(User).filter(User.email == form.team_leader.data).first() is None:
             return render_template('job.html', title='Создание проекта', form=form,
                                    message='Пользователя-тимлида с такой почтой нет')
+        col = session.query(User).filter(User.email == form.collaborators.data).first()
         if session.query(User).filter(User.email == form.collaborators.data).first() is None:
             return render_template('job.html', title='Создание проекта', form=form,
                                    message='Пользователя-соучастника с такой почтой нет')
+        if lead.email == col.email:
+            return render_template('job.html', title='Создание проекта', form=form,
+                                   message='Пользователь-соучастник не должен быть тимлидом')
         job = Jobs(
             team_leader=form.team_leader.data,
             job=form.job.data,

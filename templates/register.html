@@ -26,6 +26,16 @@
     </p>
 
     <p>
+        {{ form.surname.label }}<br>
+        {{ form.surname(class="form-control") }}<br>
+        {% for error in form.surname.errors %}
+            <p class="alert alert-danger" role="alert">
+                {{ error }}
+            </p>
+        {% endfor %}
+    </p>
+
+    <p>
         {{ form.password.label }}<br>
         {{ form.password(class="form-control", type="password") }}<br>
         {% for error in form.password.errors %}
@@ -45,7 +55,9 @@
         {% endfor %}
     </p>
 
+    {%if message%}
+        <p class="alert alert-danger" role="alert">{{message}}</p>
+    {%endif%}
     <p>{{ form.submit(type="submit", class="btn btn-primary") }}</p>
-    {{message}}
 </form>
 {% endblock %}
