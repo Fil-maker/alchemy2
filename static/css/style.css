@@ -35,6 +35,11 @@ td.table_content{
 #is_finished{
     background: rgb(255, 182, 193)
 }
+
+#is_not_finished{
+    background: rgb(193, 255, 182)
+}
+
 a.navbar-brand{
     display: inline-block;
     width: 100%;

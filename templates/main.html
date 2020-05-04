@@ -18,7 +18,11 @@
                 <td class="table_content">{{team_leader[num]}}</td>
                 <td class="table_content">{{duration[num]}}</td>
                 <td class="table_content">{{team_id[num]}}</td>
-                <td class="table_content" , id="is_finished">{{finished[num]}}</td>
+                {%if finished[num]%}
+                <td class="table_content" id="is_finished">{{finished[num]}}</td>
+                {%else%}
+                <td class="table_content" id="is_not_finished">{{finished[num]}}</td>
+                {%endif%}
             </tr>
         </table>
         <a class="navbar-brand" href="/job/{{name[num]}}">Go</a>

@@ -58,7 +58,7 @@ def logout():
 
 
 @app.route('/register', methods=['GET', 'POST'])
-def reqister():
+def register():
     form = RegisterForm()
     if form.validate_on_submit():
         if form.password.data != form.password_again.data:
@@ -103,16 +103,17 @@ def start():
     session = db_session.create_session()
     name, team_leader, duration, team_id, finished = [], [], [], [], []
     for job in session.query(Jobs).all():
-        leader = session.query(User).filter(User.email == job.team_leader).first()
+        leader = session.query(User).filter(User.id == job.team_leader).first()
         collaborators = job.collaborators.split()
         team_col = []
         for col in collaborators:
-            collaborator = session.query(User).filter(User.email == col).first().name
+            cold = session.query(User).filter(User.email == col).first()
+            collaborator = cold.name + ' ' + cold.surname
             team_col.append(collaborator)
 
         name.append(job.job)
         team_leader.append(leader.name + ' ' + leader.surname)
-        duration.append(job.work_size)
+        duration.append(str(job.work_size) + 'часов')
         team_id.append(', '.join(team_col))
         finished.append(job.is_finished)
     return render_template('main.html', count=len(name), style=url_for('static', filename='css/style.css'), name=name,
@@ -139,7 +140,7 @@ def job_add():
             return render_template('job.html', title='Создание проекта', form=form,
                                    message='Пользователь-соучастник не должен быть тимлидом')
         job = Jobs(
-            team_leader=form.team_leader.data,
+            team_leader=lead.id,
             job=form.job.data,
             collaborators=form.collaborators.data,
             work_size=form.work_size.data,
