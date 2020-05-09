@@ -3,7 +3,6 @@ from flask_login import LoginManager, login_user, login_required, logout_user
 from werkzeug.utils import redirect
 from wtforms import PasswordField, BooleanField, SubmitField, StringField
 from wtforms.fields.html5 import IntegerField, DateField, EmailField
-
 from flask_wtf import FlaskForm
 from wtforms.validators import DataRequired
 
@@ -41,6 +40,14 @@ class JobAddForm(FlaskForm):
     end_date = DateField('Предположительное время конца работы', validators=[DataRequired()])
     is_finished = BooleanField('Закончена ли работа?')
     submit = SubmitField('Создать')
+
+
+class JobChangeForm(FlaskForm):
+    work_size = IntegerField('Размер работы')
+    collaborators = EmailField('Почта соучастника')
+    end_date = DateField('Предположительное время конца работы')
+    is_finished = BooleanField('Закончена ли работа?')
+    submit = SubmitField('Изменить')
 
 
 class LoginForm(FlaskForm):
@@ -108,13 +115,12 @@ def start():
         team_col = []
         for col in collaborators:
             cold = session.query(User).filter(User.email == col).first()
-            collaborator = cold.name + ' ' + cold.surname
-            team_col.append(collaborator)
+            team_col.append(cold)
 
         name.append(job.job)
-        team_leader.append(leader.name + ' ' + leader.surname)
-        duration.append(str(job.work_size) + 'часов')
-        team_id.append(', '.join(team_col))
+        team_leader.append(leader)
+        duration.append(job.work_size)
+        team_id.append(team_col)
         finished.append(job.is_finished)
     return render_template('main.html', count=len(name), style=url_for('static', filename='css/style.css'), name=name,
                            team_leader=team_leader, duration=duration, team_id=team_id, finished=finished)
@@ -149,6 +155,45 @@ def job_add():
         session.commit()
         return redirect('/')
     return render_template('job.html', title='Создание проекта', form=form)
+
+
+@login_required
+@app.route('/<int:user_id>/job/edit/<string:job_name>', methods=['GET', 'POST'])
+def edit_job(user_id, job_name):
+    session = db_session.create_session()
+    user = session.query(User).get(user_id)
+    project = session.query(Jobs).filter(Jobs.job == job_name).first()
+    if user.id == project.team_leader or user.id == 1:
+        form = JobChangeForm()
+        if form.validate_on_submit():
+            work_size = form.work_size.data
+            collaborators = form.collaborators.data
+            end_date = form.end_date.data
+            is_finished = form.is_finished.data
+            if work_size:
+                project.work_size = work_size
+            if collaborators:
+                project.collaborators = collaborators
+            if end_date:
+                project.end_date = end_date
+            if is_finished:
+                project.is_finished = is_finished
+            session.commit()
+            return redirect('/')
+        return render_template('postjob.html', form=form)
+    return redirect('/')
+
+
+@login_required
+@app.route('/<int:user_id>/job/delete/<string:job_name>')
+def delete_job(user_id, job_name):
+    session = db_session.create_session()
+    user = session.query(User).get(user_id)
+    project = session.query(Jobs).filter(Jobs.job == job_name).first()
+    if user.id == project.team_leader or user.id == 1:
+        session.delete(project)
+        session.commit()
+    return redirect('/')
 
 
 def main():

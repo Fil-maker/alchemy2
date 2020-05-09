@@ -33,17 +33,15 @@ td.table_content{
 }
 
 #is_finished{
-    background: rgb(255, 182, 193)
-}
-
-#is_not_finished{
     background: rgb(193, 255, 182)
 }
 
+#is_not_finished{
+    background: rgb(255, 182, 193)
+}
+
 a.navbar-brand{
-    display: inline-block;
-    width: 100%;
-    margin-right: -100%;
+    margin: 0 auto;
     vertical-align: bottom;
     text-align: right;
 }

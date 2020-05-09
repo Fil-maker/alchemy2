@@ -2,6 +2,7 @@
 {% block content %}
 <div>
     <h3 id="work_h">Журнал работ</h3>
+    <a class="btn" href="/job_add">Add job</a>
     {% for num in range(count)%}
     <div class="job">
         <h4>Работа #{{num + 1}}</h4>
@@ -15,9 +16,9 @@
             </tr>
             <tr>
                 <td class="table_content">{{name[num]}}</td>
-                <td class="table_content">{{team_leader[num]}}</td>
+                <td class="table_content">{{team_leader[num].name}} {{team_leader[num].surname}}</td>
                 <td class="table_content">{{duration[num]}}</td>
-                <td class="table_content">{{team_id[num]}}</td>
+                <td class="table_content">{{team_id[num][0].name}} {{team_id[num][0].surname}}</td>
                 {%if finished[num]%}
                 <td class="table_content" id="is_finished">{{finished[num]}}</td>
                 {%else%}
@@ -25,7 +26,10 @@
                 {%endif%}
             </tr>
         </table>
-        <a class="navbar-brand" href="/job/{{name[num]}}">Go</a>
+        {% if current_user.is_authenticated %}
+        <a class="btn" href="{{current_user.id}}/job/edit/{{name[num]}}">edit</a>
+        <a class="btn" href="{{current_user.id}}/job/delete/{{name[num]}}">delete</a>
+        {% endif %}
     </div>
     {%endfor%}
 </div>
